@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch-app
+  namespace: kube-system
+  labels:
+    k8s-app: elasticsearch-app
+spec:
+  serviceName: elasticsearch-app
+  replicas: 2
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      k8s-app: elasticsearch-app
+  template:
+    metadata:
+      labels:
+        k8s-app: elasticsearch-app
+    spec:
+      serviceAccountName: elasticsearch-app
+      containers:
+      - image: elasticsearch:6.8.4
+        name: elasticsearch-app
+        ports:
+        - containerPort: 9200
+          name: db
+          protocol: TCP
+        - containerPort: 9300
+          name: transport
+          protocol: TCP
+        volumeMounts:
+        - name: elasticsearch-app
+          mountPath: /data
+        env:
+        - name: "NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+      volumes:
+      - name: elasticsearch-app
+        emptyDir: {}
+      initContainers:
+      - image: alpine:3.6
+        command: ["/sbin/sysctl", "-w", "vm.max_map_count=262144"]
+        name: elasticsearch-app-init
+        securityContext:
+          privileged: true

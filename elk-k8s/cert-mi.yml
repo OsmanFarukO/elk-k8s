@@ -1,0 +1,24 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Issuer
+metadata:
+  name: elk-tls-issuer
+spec:
+  selfSigned: {}
+
+---
+
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: elk-tls-cert
+spec:
+  secretName: elk-tls-cert
+  duration: 175200h
+  renewBefore: 72h
+  commonName: kibana.local.test
+  dnsNames:
+  - kibana.local.test
+  isCA: true
+  issuerRef:
+    name: elk-tls-issuer
+    kind: Issuer

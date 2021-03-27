@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kibana-ingress
+  namespace: kube-system
+  annotations:
+    INGRESS.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+      - kibana.local.test
+    secretName: elk-tls
+    # secretName: elk-tls-cert
+  rules:
+  - host: kibana.local.test
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          serviceName: kibana-logging
+          servicePort: 5601
